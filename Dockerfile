@@ -41,10 +41,9 @@ LABEL org.opencontainers.image.source="https://github.com/readium/go-toolkit"
 # package to discover a file's mimetype when all else fails.
 ADD https://pagure.io/mailcap/raw/master/f/mime.types /etc/
 
-# Add two demo EPUBs to the container by default
-ADD --chown=nonroot:nonroot https://readium-playground-files.storage.googleapis.com/demo/moby-dick.epub /srv/publications/
-ADD --chown=nonroot:nonroot https://readium-playground-files.storage.googleapis.com/demo/BellaOriginal3.epub /srv/publications/
-ADD --chown=nonroot:nonroot https://readium-playground-files.storage.googleapis.com/demo/coup002elin01_01.epub /srv/publications/
+# Add EPUBs to the container
+ADD --chown=nonroot:nonroot https://bluefireproductions.github.io/jisu-epubs/9781479819454.epub /srv/publications/
+ADD --chown=nonroot:nonroot https://bluefireproductions.github.io/jisu-epubs/9781479819492.epub /srv/publications/
 
 # Copy built Go binary
 COPY --from=builder "/app/rwp" /opt/

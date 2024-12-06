@@ -1,63 +1,52 @@
-# Readium Go Toolkit
+# NYU Go Server
+A Dockerized go server based on Readium go-toolkit for serving web pub manifests
 
-More documentation coming soon! Things are changing too quickly right now.
+## Test the NYU-Go-Server Locally
+Here are the steps to test the go-server to make sure it is working correctly before adding it to a Docker container.
 
-For development, run `go run cmd/server/main.go` to start the server, which by default listens on `127.0.0.1:5080`. Check out the [example configuration file](https://github.com/readium/go-toolkit/blob/master/cmd/server/configs/config.local.toml.example) for configuration options.
+Clone nyu-go-server from GitHub
+Add books for testing to the nyu-go-server/test directory
+'Make' the project and 'install' it for local execution.
 
-## Command line utility
+```
+git clone https://github.com/BluefireProductions/nyu-go-server.git --recursive
+cd nyu-go-server
+go mod tidy
+make install
 
-The `rwp` command provides utilities to parse and generate Web Publications.
+//build the binary in the local 'go/bin' directory
+cd cmd/rwp
+go install 
+cd ../..
+rwp serve test
 
-To install `rwp` in `~/go/bin`, run `make install`. Use `make build` to build the binary in the current directory.
-
-### Generating a Readium Web Publication Manifest
-
-The `rwp manifest` command will parse a publication file (such as EPUB, PDF, audiobook, etc.) and build a Readium Web Publication Manifest for it. The JSON manifest is
-printed to stdout.
-
-Examples:
-
-* Print out a compact JSON RWPM.
-    ```sh
-    rwp manifest publication.epub
-    ```
-* Pretty-print a JSON RWPM using two-space indent.
-    ```sh
-    rwp manifest --indent "  " publication.epub
-    ```
-* Extract the publication title with `jq`.
-    ```sh
-    rwp manifest publication.epub | jq -r .metadata.title
-    ```
-
-#### Accessibility inference
-
-`rwp manifest` can infer additional accessibility metadata when they are missing, with the `--infer-a11y` flag. It takes one of the following arguments:
-
-| Option           | Description                                                                                            |
-|------------------|--------------------------------------------------------------------------------------------------------|
-| `no` (*default*) | No accessibility metadata will be inferred.                                                            |
-| `merged`         | Accessibility metadata will be inferred and merged with the authored ones in `metadata.accessibility`. |
-| `split`          | Accessibility metadata will be inferred but stored separately in `metadata.inferredAccessibility`.     |
-
-```sh
-rwp manifest --infer-a11y=merged publication.epub  | jq .metadata
+//test in a local web browser
+http://localhost:15080/list.json
+http://localhost:15080/OTc4MTQ3OTgxOTQ5Mi5lcHVi/manifest.json
+http://localhost:9000/OTc4MTQ3OTgxOTQ1NC5lcHVi/manifest.json
 ```
 
-##### Inferred metadata
+## Test Dockerfile Locally
+Add links to eBooks to include in the Docker container.
+Dockerfile:
 
-| Key | Value | Inferred? |
-|-----|-------|-----------|
-| `accessMode` | `auditory` | If the publication contains a reference to an audio or video resource (inspect `resources` and `readingOrder` in RWPM) |
-| `accessMode` | `visual` | If the publications contains a reference to an image or a video resource (inspect `resources` and `readingOrder` in RWPM) |
-| `accessModeSufficient` | `textual` | If the publication is partially or fully accessible (WCAG A or above)<br>Or if the publication does not contain any image, audio or video resource (inspect "resources" and "readingOrder" in RWPM)<br>Or if the only image available can be identified as a cover |
-| `feature` | `displayTransformability` | If the publication is fully accessible (WCAG AA or above)<br>:warning: This property should only be inferred for reflowable EPUB files as it doesn't apply to other formats (FXL, PDF, audiobooks, CBZ/CBR). |
-| `feature` | `printPageNumbers` | If the publications contains a page list (check for the presence of a `pageList` collection in RWPM) |
-| `feature` | `tableOfContents` | If the publications contains a table of contents (check for the presence of a `toc` collection in RWPM) |
-| `feature` | `MathML` | If the publication contains any resource with MathML (check for the presence of the `contains` property where the value is `mathml` in `readingOrder` or `resources` in RWPM) |
-| `feature` | `synchronizedAudioText` | If the publication contains any reference to Media Overlays (TBD in RWPM) |
+```
+ADD --chown=nonroot:nonroot https://bluefireproductions.github.io/jisu-epubs/9781479819454.epub /srv/publications/
+ADD --chown=nonroot:nonroot https://bluefireproductions.github.io/jisu-epubs/9781479819492.epub /srv/publications/
+```
 
-### HTTP streaming of local publications
+Test that docker is installed, build and run locally.
+From the nyu-go-server directory:
 
-`rwp serve` starts an HTTP server that serves EPUB, CBZ and other compatible formats from a given directory.
-A log is printed to stdout.
+```
+docker info
+docker build -t nyu-go-server:latest .
+docker run -e PORT=15080 -p 9000:15080 nyu-go-server:latest
+http://localhost:9000/list.json
+http://localhost:9000/OTc4MTQ3OTgxOTQ5Mi5lcHVi/manifest.json
+http://localhost:9000/OTc4MTQ3OTgxOTQ1NC5lcHVi/manifest.json
+```
+
+## Build the Docker image on EC2
+
+
