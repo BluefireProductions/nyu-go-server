@@ -28,8 +28,8 @@ http://localhost:15080/OTc4MTQ3OTgxOTQ5Mi5lcHVi/manifest.json
 http://localhost:9000/OTc4MTQ3OTgxOTQ1NC5lcHVi/manifest.json
 ```
 
-## Test Dockerfile Locally
-Add links to eBooks to include in the Docker container.
+## Adding ebooks to the container
+Add links to eBooks to be included in the Docker container.  
 Dockerfile:
 
 ```
@@ -37,7 +37,8 @@ ADD --chown=nonroot:nonroot https://bluefireproductions.github.io/jisu-epubs/978
 ADD --chown=nonroot:nonroot https://bluefireproductions.github.io/jisu-epubs/9781479819492.epub /srv/publications/
 ```
 
-Test that docker is installed, build and run locally.
+## Test Docker Container Locally
+Test that docker is installed, build and run locally.  
 From the nyu-go-server directory:
 
 ```
@@ -55,7 +56,7 @@ http://localhost:9000/OTc4MTQ3OTgxOTQ1NC5lcHVi/manifest.json
 ssh -i ~/dlts-aws-jisu.pem ec2-user@18.205.45.14
 ```
 
-## Build the Docker image on EC2
+## Build the Docker Image on EC2
 Clone the nyu-go-server, build and run it
 
 ```
